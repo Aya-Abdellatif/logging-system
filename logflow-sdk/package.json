@@ -1,14 +1,16 @@
 {
   "name": "logflow-sdk",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "version": "1.0.2",
+  "description": "Logging SDK for LogFlow applications",
+  "main": "src/index.js",
   "scripts": {},
   "keywords": [
     "logging",
-    "sdk"
+    "sdk",
+    "logflow",
+    "nodejs"
   ],
-  "author": "",
+  "author": "Aya Abdellatif",
   "license": "MIT",
   "type": "module",
   "dependencies": {

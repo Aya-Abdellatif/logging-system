@@ -28,11 +28,6 @@ logflow.init({
 
 // 2. Send logs anywhere in your app
 await logflow.log({ message: 'Server started', level: 'INFO' });
-
-// Or use shorthand helpers:
-await logflow.info('User signed up');
-await logflow.warn('High memory usage detected');
-await logflow.error('Payment service unreachable');
 ```
 
 ---
