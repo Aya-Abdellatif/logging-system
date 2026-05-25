@@ -3,7 +3,7 @@ import logflow from './index.js';
 
 // ─── 1. Initialize once at app startup ───────────────────────────────────────
 logflow.init({
-  apiKey: '33c01aa4-1ef4-42ab-adc1-313f0ba4dfe7',       // from your LogFlow account
+  apiKey: 'YOUR_API_KEY_HERE',       // from your LogFlow account
   appName: 'my-test-app',            // must already exist on LogFlow
   baseUrl: 'http://localhost:5000',  // your LogFlow server
 });

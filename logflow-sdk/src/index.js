@@ -1,5 +1,3 @@
-'use strict';
- 
 import axios from "axios";
 
 let _config = {
@@ -32,6 +30,8 @@ function init({ apiKey, appName, baseUrl = "http://localhost:5000" }) {
 }
 
 async function log({ message, level = 'INFO' }) {
+
+
     if (!_config.apiKey || !_config.appName) {
         throw new Error(
             '[LogFlow] SDK not initialized. Call logflow.init({ apiKey, appName }) first.'
@@ -50,31 +50,31 @@ async function log({ message, level = 'INFO' }) {
     }
 
     try {
-    const response = await axios.post(
-      `${_config.baseUrl}/api/applications/${_config.appName}/logs`,
-      {
-        message: message.trim(),
-        level: normalizedLevel,
-      },
-      {
-        headers: {
-          'x-api-key': _config.apiKey,
-          'Content-Type': 'application/json',
-        },
-      }
-    );
- 
-    return response.data;
-  } catch (error) {
-    if (error.response) {
-      const { status, data } = error.response;
-      throw new Error(
-        `[LogFlow] API error (${status}): ${data?.message || JSON.stringify(data)}`
-      );
+        const response = await axios.post(
+            `${_config.baseUrl}/api/applications/${_config.appName}/logs`,
+            {
+                message: message.trim(),
+                level: normalizedLevel,
+            },
+            {
+                headers: {
+                    'x-api-key': _config.apiKey,
+                    'Content-Type': 'application/json',
+                },
+            }
+        );
+
+        return response.data;
+    } catch (error) {
+        if (error.response) {
+            const { status, data } = error.response;
+            throw new Error(
+                `[LogFlow] API error (${status}): ${data?.message || JSON.stringify(data)}`
+            );
+        }
+
+        throw new Error(`[LogFlow] Network error: ${error.message}`);
     }
- 
-    throw new Error(`[LogFlow] Network error: ${error.message}`);
-  }
 }
 
 export default {

@@ -4,10 +4,10 @@ import {validateAuthToken} from "../middlewares/auth.middleware.js"
 
 const router = express.Router();
 
-router.use(validateAuthToken);
+//router.use(validateAuthToken);
 
-router.get("/", getAllApplications);
-router.post("/", createApplication);
-router.delete("/:name", deleteApplication);
+router.get("/",validateAuthToken, getAllApplications);
+router.post("/", validateAuthToken,createApplication);
+router.delete("/:name",validateAuthToken, deleteApplication);
 
 export default router;
