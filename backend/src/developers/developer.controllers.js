@@ -56,7 +56,7 @@ export const logoutDeveloperController = async (request, response, next) => {
 }
 
 // GET /api/developers/me
-export const getMe = async (req, res, next) => {
+export const getMe = async (request, response, next) => {
     try {
         response.status(200).json({ success: true, data: request.developer });
     } catch (err) {
