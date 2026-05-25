@@ -1,6 +1,6 @@
 # LogFlow
 
-**LogFlow** is a centralized logging platform that helps developers collect, manage, and analyze application logs in real time through a web dashboard and a lightweight Node.js SDK.
+**LogFlow** is a centralized logging platform that helps developers collect, manage, and analyze application logs through a web dashboard and a lightweight Node.js SDK.
 
 <img width="450" height="250" alt="demo" src="https://github.com/user-attachments/assets/4fe3ccc7-4c4c-4f4c-ab83-929e55171938" />
 
