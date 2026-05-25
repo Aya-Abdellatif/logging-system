@@ -1,3 +1,4 @@
+import { response } from "express";
 import Developer from "./developer.model.js"
 import User from "./users.model.js";
 import bcrypt from "bcrypt";
@@ -14,7 +15,7 @@ export const registerDeveloperController = async (request, response, next) => {
         response.status(201).json({
             success: true,
             message: "Developer registered successfully",
-            token, 
+            token,
             data: developer
         });
     }
@@ -36,7 +37,7 @@ export const loginDeveloperController = async (request, response, next) => {
 
         const token = signToken(developer._id);
         developer.password = undefined;
-        
+
         response.status(200).json({ success: true, token, data: developer });
 
     }
@@ -48,7 +49,7 @@ export const loginDeveloperController = async (request, response, next) => {
 // POST /api/developers/logout
 export const logoutDeveloperController = async (request, response, next) => {
     try {
-
+        response.status(200).json({ success: true, message: 'Logged out successfully' });
     }
     catch (error) {
         return next(error);
@@ -58,15 +59,15 @@ export const logoutDeveloperController = async (request, response, next) => {
 // GET /api/developers/me
 export const getMe = async (req, res, next) => {
     try {
-
+        response.status(200).json({ success: true, data: request.developer });
     } catch (err) {
-        next(err);
+        return next(err);
     }
 };
 
 
 const signToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: '7d',
-  });
+    return jwt.sign({ id }, process.env.JWT_SECRET, {
+        expiresIn: '7d',
+    });
 };
