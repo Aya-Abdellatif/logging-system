@@ -8,6 +8,7 @@ export const registerDeveloperController = async (request, response, next) => {
         const { username, email, password } = request.body;
 
         const developer = await Developer.create({ username, email, password });
+        developer.password = undefined;
         const token = signToken(developer._id);
 
         response.status(201).json({
