@@ -2,6 +2,8 @@
 
 > An all-in-one logging system for application developers to save, manage, and analyze logs.
 
+[![npm version](https://img.shields.io/npm/v/logflow-sdk-aya)](https://www.npmjs.com/package/logflow-sdk-aya)
+
 ---
 
 ## Table of Contents
@@ -103,7 +105,7 @@ npm run dev
 
 ## Environment Variables
 
-Create a `.env` file in the root directory based on `.env.example`:
+Create a `.env` file in the root directory based on `.env`:
 
 ```env
 PORT=5000
@@ -313,6 +315,57 @@ LogFlow uses two layers of authentication:
 
 ---
 
+## SDK — `logflow-sdk-aya`
+
+The official Node.js SDK to send logs from your application to LogFlow.
+
+📦 **npm:** [https://www.npmjs.com/package/logflow-sdk-aya](https://www.npmjs.com/package/logflow-sdk-aya)
+
+### Installation
+
+```bash
+npm install logflow-sdk-aya
+```
+
+### Usage
+
+```js
+const logflow = require("logflow-sdk-aya");
+
+// Initialize with your API key and application name
+logflow.init({
+  apiKey: "your-api-key",
+  appName: "my-app",
+});
+
+// Send a log
+logflow.log({
+  message: "User signed in",
+  level: "INFO",
+});
+
+logflow.log({
+  message: "Payment service timeout",
+  level: "WARN",
+});
+
+logflow.log({
+  message: "Database connection failed",
+  level: "ERROR",
+});
+```
+
+### Methods
+
+| Method  | Description                                              |
+|---------|----------------------------------------------------------|
+| `init`  | Sets your API key and target application name            |
+| `log`   | Sends a log entry (`message` + `level`) to your app     |
+
+> **Note:** `level` must be one of `INFO`, `WARN`, or `ERROR`.
+
+---
+
 ## Roadmap
 
 - [x] Developer auth (register, login, logout)
@@ -322,7 +375,7 @@ LogFlow uses two layers of authentication:
 - [x] Filtering, sorting, and pagination
 - [x] Route protection (JWT + API key)
 - [ ] Frontend dashboard (React)
-- [ ] npm SDK package (`logflow-sdk`)
+- [x] npm SDK package ([logflow-sdk-aya](https://www.npmjs.com/package/logflow-sdk-aya))
 - [ ] Charts: pie chart for log levels, line graph per day
 - [ ] Deployment
 
