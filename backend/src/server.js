@@ -1,12 +1,15 @@
 import mongoose from "mongoose";
 import express from "express";
+//import dotenv from "dotenv";
+//dotenv.config();
+
 import errorHandler from "./middlewares/errorHandler.middleware.js";
 import developerRouter from "./developers/developer.router.js";
 import applicationRouter from "./applications/application.router.js";
 
 const server = express();
 
-server.use(express.urlencoded());
+//server.use(express.urlencoded());
 server.use(express.json());
 //server.use(cookieParser());
 
@@ -32,3 +35,5 @@ catch (error) {
     console.error(error);
     process.exit();
 }
+
+//export default server;
