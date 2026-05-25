@@ -3,22 +3,28 @@ import Developer from '../developers/developer.model.js';
 
 export const validateAuthToken = async (request, response, next) => {
     try {
-        const { authorization } = request.headers;
+        let token;
 
-        if (!authorization) {
+        if (request.cookies?.jwt) {
+            token = request.cookies.jwt;
+        }
+        else if (request.headers.authorization) {
+
+            const authorizationHeaderValue = request.headers.authorization.split(" ");
+
+            if (authorizationHeaderValue.length !== 2 || authorizationHeaderValue[0] !== 'Bearer' || !authorizationHeaderValue[1]) {
+                return response.status(401).json({ success: false, message: "Invalid token format" })
+            }
+
+            token = authorizationHeaderValue[1];
+        }
+
+        if (!token) {
             return response.status(401).json({
                 success: false,
                 message: 'Unauthorized'
             });
         }
-
-        const authorizationHeaderValue = authorization.split(" ");
-
-        if (authorizationHeaderValue.length !== 2 || authorizationHeaderValue[0] !== 'Bearer' || !authorizationHeaderValue[1]) {
-            return response.status(401).json({ success: false, message: "Invalid token format" })
-        }
-
-        const token = authorizationHeaderValue[1];
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
 
@@ -29,7 +35,8 @@ export const validateAuthToken = async (request, response, next) => {
         }
 
         request.developer = developer;
-        next();
+        return next();
+
     } catch (err) {
         return response.status(401).json({ success: false, message: 'Invalid or expired token' });
     }

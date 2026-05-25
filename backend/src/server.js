@@ -4,6 +4,7 @@ import applicationRouter from "./applications/application.router.js";
 import logRouter from "./logs/logs.router.js";
 import mongoose from "mongoose";
 import express from "express";
+import cookieParser from 'cookie-parser';
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -12,7 +13,7 @@ const server = express();
 
 //server.use(express.urlencoded());
 server.use(express.json());
-//server.use(cookieParser());
+server.use(cookieParser());
 
 
 server.use("/api/developers", developerRouter);

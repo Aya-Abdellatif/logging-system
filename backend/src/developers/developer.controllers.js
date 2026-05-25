@@ -11,6 +11,8 @@ export const registerDeveloperController = async (request, response, next) => {
         developer.password = undefined;
         const token = signToken(developer._id);
 
+        sendTokenAsCookie(response, token);
+
         response.status(201).json({
             success: true,
             message: "Developer registered successfully",
@@ -37,6 +39,8 @@ export const loginDeveloperController = async (request, response, next) => {
         const token = signToken(developer._id);
         developer.password = undefined;
 
+        sendTokenAsCookie(response, token);
+
         response.status(200).json({ success: true, token, data: developer });
 
     }
@@ -48,6 +52,7 @@ export const loginDeveloperController = async (request, response, next) => {
 // POST /api/developers/logout
 export const logoutDeveloperController = async (request, response, next) => {
     try {
+        response.cookie('jwt', '', { httpOnly: true, expires: new Date(0) });
         response.status(200).json({ success: true, message: 'Logged out successfully' });
     }
     catch (error) {
@@ -68,5 +73,14 @@ export const getMe = async (request, response, next) => {
 const signToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET_KEY, {
         expiresIn: '7d',
+    });
+};
+
+const sendTokenAsCookie = (res, token) => {
+    res.cookie('jwt', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 };
