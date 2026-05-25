@@ -1,0 +1,27 @@
+{
+  "name": "logging-system",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node --watch --env-file=.env src/app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Aya-Abdellatif/logging-system.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/Aya-Abdellatif/logging-system/issues"
+  },
+  "homepage": "https://github.com/Aya-Abdellatif/logging-system#readme",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.6.2"
+  }
+}
