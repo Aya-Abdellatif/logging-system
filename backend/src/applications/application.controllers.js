@@ -22,7 +22,7 @@ export const createApplication = async (request, response, next) => {
         });
 
         response.status(201).json({ success: true, data: application });
-    } catch (errpr) {
+    } catch (error) {
         return next(error);
     }
 };
