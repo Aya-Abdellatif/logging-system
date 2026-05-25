@@ -5,7 +5,7 @@ import express from "express";
 
 import {errorHandler} from "./middlewares/errorHandler.middleware.js";
 import developerRouter from "./developers/developer.router.js";
-import applicationRouter from "./applications/application.router.js";
+//import applicationRouter from "./applications/application.router.js";
 
 const server = express();
 
@@ -20,7 +20,7 @@ server.use("/api/developers", developerRouter);
 //server.use(validateAuthToken);
 
 // Applications
-server.use("/api/applications", applicationRouter);
+//server.use("/api/applications", applicationRouter);
 
 server.use(errorHandler);
 
