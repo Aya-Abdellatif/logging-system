@@ -17,7 +17,7 @@ server.use(express.json());
 // Developers
 server.use("/api/developers", developerRouter);
 
-server.use(validateAuthToken);
+//server.use(validateAuthToken);
 
 // Applications
 server.use("/api/applications", applicationRouter);

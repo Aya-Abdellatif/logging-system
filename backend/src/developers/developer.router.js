@@ -1,9 +1,12 @@
-import { registerDeveloperController, loginDeveloperController, logoutDeveloperController } from "./developer.controllers";
 import express from "express";
+import { registerDeveloperController, loginDeveloperController, logoutDeveloperController, getMe } from "./developer.controllers";
+import {validateAuthToken} from '../middlewares/auth.middleware.js';
+
 const router = express.Router();
 
 router.post("/register", registerDeveloperController);
 router.post("/login", loginDeveloperController);
-router.post("/logout", logoutDeveloperController);
+router.post("/logout", validateAuthToken, logoutDeveloperController);
+router.get('/me', validateAuthToken, getMe);
 
 export default router;
