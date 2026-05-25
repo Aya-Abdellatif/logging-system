@@ -1,12 +1,16 @@
 import express from "express";
-import logRouter from "../logs/logs.router.js";
+//import logRouter from "../logs/logs.router.js";
+import {getAllApplications, createApplication, deleteApplication} from "./application.controllers.js";
+import {validateAuthToken} from "../middlewares/auth.middleware.js"
 
 const router = express.Router();
 
-router.get("/applications", );
-router.post("/applications", );
-router.delete("/applications", );
+router.use(validateAuthToken);
 
-router.use("/:name/logs", logRouter);
+router.get("/", getAllApplications);
+router.post("/", createApplication);
+router.delete("/:name", deleteApplication);
+
+//router.use("/:name/logs", logRouter);
 
 export default router;

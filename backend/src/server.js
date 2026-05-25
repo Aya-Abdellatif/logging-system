@@ -14,10 +14,8 @@ const server = express();
 server.use(express.json());
 //server.use(cookieParser());
 
-
 // Developers
 server.use("/api/developers", developerRouter);
-
 // Applications
 server.use("/api/applications", applicationRouter);
 
