@@ -1,3 +1,4 @@
+import Developer from "./developer.model.js"
 import User from "./users.model.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
@@ -5,7 +6,14 @@ import jwt from "jsonwebtoken";
 // POST /api/developers/register
 export const registerDeveloperController = async (request, response, next) => {
     try {
+        const { username, email, password } = req.body;
 
+        await Developer.create({ username, email, password });
+
+        response.status(201).json({
+            success: true,
+            message: "Developer registered successfully",
+        });
     }
     catch (error) {
         return next(error);
@@ -35,7 +43,7 @@ export const logoutDeveloperController = async (request, response, next) => {
 // GET /api/developers/me
 export const getMe = async (req, res, next) => {
     try {
-        
+
     } catch (err) {
         next(err);
     }
