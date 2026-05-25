@@ -1,6 +1,8 @@
 import {errorHandler} from "./middlewares/errorHandler.middleware.js";
 import developerRouter from "./developers/developer.router.js";
 import applicationRouter from "./applications/application.router.js";
+import logRouter from "./logs/logs.router.js";
+
 
 import mongoose from "mongoose";
 import express from "express";
@@ -14,10 +16,10 @@ const server = express();
 server.use(express.json());
 //server.use(cookieParser());
 
-// Developers
+
 server.use("/api/developers", developerRouter);
-// Applications
 server.use("/api/applications", applicationRouter);
+server.use('/api/applications/:name/logs', logRouter);
 
 server.use(errorHandler);
 
