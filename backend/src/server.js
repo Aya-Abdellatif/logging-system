@@ -1,6 +1,6 @@
 import {errorHandler} from "./middlewares/errorHandler.middleware.js";
 import developerRouter from "./developers/developer.router.js";
-//import applicationRouter from "./applications/application.router.js";
+import applicationRouter from "./applications/application.router.js";
 
 import mongoose from "mongoose";
 import express from "express";
@@ -18,10 +18,8 @@ server.use(express.json());
 // Developers
 server.use("/api/developers", developerRouter);
 
-//server.use(validateAuthToken);
-
 // Applications
-//server.use("/api/applications", applicationRouter);
+server.use("/api/applications", applicationRouter);
 
 server.use(errorHandler);
 
