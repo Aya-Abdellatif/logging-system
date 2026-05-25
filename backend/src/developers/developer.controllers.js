@@ -79,8 +79,8 @@ const signToken = (id) => {
 const sendTokenAsCookie = (res, token) => {
     res.cookie('jwt', token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'none',
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        secure: false,
+        sameSite: 'lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 };
