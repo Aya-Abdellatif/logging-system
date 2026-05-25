@@ -2,8 +2,6 @@ import {errorHandler} from "./middlewares/errorHandler.middleware.js";
 import developerRouter from "./developers/developer.router.js";
 import applicationRouter from "./applications/application.router.js";
 import logRouter from "./logs/logs.router.js";
-
-
 import mongoose from "mongoose";
 import express from "express";
 import dotenv from "dotenv";
@@ -35,4 +33,4 @@ catch (error) {
     process.exit();
 }
 
-//export default server;
+export default server;
