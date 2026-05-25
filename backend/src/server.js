@@ -3,7 +3,7 @@ import express from "express";
 //import dotenv from "dotenv";
 //dotenv.config();
 
-import errorHandler from "./middlewares/errorHandler.middleware.js";
+import {errorHandler} from "./middlewares/errorHandler.middleware.js";
 import developerRouter from "./developers/developer.router.js";
 import applicationRouter from "./applications/application.router.js";
 

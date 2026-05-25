@@ -1,9 +1,11 @@
-export const errorHandler = ((error, request, response, next) => {
+export const errorHandler = (error, request, response, next) => {
     console.error(error);
 
+    // mongoose Errors
     if (error.code === 11000 || error.name === "ValidationError" || error.name === "CastError") {
-        return response.status(400).json({ message: "Invalid User Data." })
+        return response.status(400).json({ message: "Invalid Data" })
     }
 
-    return response.status(500).json({ message: "Something went wrong." })
-});
+    // default
+    return response.status(500).json({ message: "Internal server error" })
+};
