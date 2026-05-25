@@ -4,15 +4,13 @@ const API_BASE = "http://localhost:5000/api";
 
 
 async function apiFetch(path, opts = {}) {
-  const token = getToken();
   const res = await fetch(`${API_BASE}${path}`, {
+    method: opts.method || "GET",
     headers: {
       "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...opts.headers,
     },
     credentials: "include",
-    ...opts,
+    body: opts.body || undefined,
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.message || "Request failed");
@@ -20,8 +18,8 @@ async function apiFetch(path, opts = {}) {
 }
 
 const LEVEL_COLORS = {
-  INFO:  { bg: "#e6f1fb", text: "#0c447c", dot: "#378add" },
-  WARN:  { bg: "#faeeda", text: "#854f0b", dot: "#ef9f27" },
+  INFO: { bg: "#e6f1fb", text: "#0c447c", dot: "#378add" },
+  WARN: { bg: "#faeeda", text: "#854f0b", dot: "#ef9f27" },
   ERROR: { bg: "#fcebeb", text: "#a32d2d", dot: "#e24b4a" },
 };
 
@@ -70,8 +68,8 @@ function Btn({ children, variant = "primary", loading, ...props }) {
   const styles = {
     primary: { background: "#1e3a5f", color: "#fff", border: "none" },
     outline: { background: "#fff", color: "#1e3a5f", border: "1.5px solid #1e3a5f" },
-    danger:  { background: "#fee2e2", color: "#b91c1c", border: "none" },
-    ghost:   { background: "transparent", color: "#64748b", border: "1px solid #e2e8f0" },
+    danger: { background: "#fee2e2", color: "#b91c1c", border: "none" },
+    ghost: { background: "transparent", color: "#64748b", border: "1px solid #e2e8f0" },
   };
   return (
     <button {...props} style={{
@@ -95,7 +93,7 @@ function AuthPage({ onLogin }) {
   const submit = async () => {
     setError(""); setLoading(true);
     try {
-      const endpoint = mode === "login" ? "/users/login" : "/users/register";
+      const endpoint = mode === "login" ? "/developers/login" : "/developers/register";
       const body = mode === "login"
         ? { email: form.email, password: form.password }
         : form;
@@ -121,7 +119,7 @@ function AuthPage({ onLogin }) {
               display: "flex", alignItems: "center", justifyContent: "center",
             }}>
               <svg width="18" height="18" fill="none" stroke="#fff" strokeWidth="2" viewBox="0 0 24 24">
-                <path d="M4 6h16M4 10h16M4 14h10M4 18h7" strokeLinecap="round"/>
+                <path d="M4 6h16M4 10h16M4 14h10M4 18h7" strokeLinecap="round" />
               </svg>
             </div>
             <span style={{ fontWeight: 800, fontSize: 20, color: "#0f172a", letterSpacing: -0.5 }}>LogFlow</span>
@@ -138,10 +136,10 @@ function AuthPage({ onLogin }) {
         )}
 
         {mode === "register" && (
-          <Input label="Username" value={form.username} onChange={e => setForm({...form, username: e.target.value})} placeholder="devname" />
+          <Input label="Username" value={form.username} onChange={e => setForm({ ...form, username: e.target.value })} placeholder="devname" />
         )}
-        <Input label="Email" type="email" value={form.email} onChange={e => setForm({...form, email: e.target.value})} placeholder="you@example.com" />
-        <Input label="Password" type="password" value={form.password} onChange={e => setForm({...form, password: e.target.value})} placeholder="••••••••" />
+        <Input label="Email" type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} placeholder="you@example.com" />
+        <Input label="Password" type="password" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} placeholder="••••••••" />
 
         <Btn loading={loading} onClick={submit} style={{ width: "100%", justifyContent: "center", padding: 12, fontSize: 14, marginTop: 4 }}>
           {mode === "login" ? "Sign In" : "Create Account"}
@@ -271,8 +269,8 @@ function AppsPage({ onSelectApp }) {
     setLoading(true);
     try {
       const data = await apiFetch("/applications");
-      setApps(data.applications || data);
-    } catch(e) { setError(e.message); }
+      setApps(data.data || []);
+    } catch (e) { setError(e.message); }
     setLoading(false);
   }, []);
 
@@ -284,7 +282,7 @@ function AppsPage({ onSelectApp }) {
     try {
       await apiFetch("/applications", { method: "POST", body: JSON.stringify({ name: newName.trim() }) });
       setNewName(""); await load();
-    } catch(e) { setError(e.message); }
+    } catch (e) { setError(e.message); }
     setCreating(false);
   };
 
@@ -293,7 +291,7 @@ function AppsPage({ onSelectApp }) {
     try {
       await apiFetch(`/applications/${name}`, { method: "DELETE" });
       await load();
-    } catch(e) { setError(e.message); }
+    } catch (e) { setError(e.message); }
   };
 
   return (
@@ -373,27 +371,32 @@ function LogsPage({ appName, onBack }) {
     setLoading(true);
     try {
       const params = new URLSearchParams({
-        page, limit: 10,
-        sort: sort === "recent" ? "-updatedAt" : "-count",
+        page,
+        limit: 10,
+        sortBy: sort === "recent" ? "createdAt" : "count",
+        order: "desc",
         ...(level ? { level } : {}),
-        ...(search ? { message: search } : {}),
+        ...(search ? { search } : {}),
       });
-      const data = await apiFetch(`/applications/${appName}/logs?${params}`);
-      const logsArr = data.logs || data;
-      setLogs(logsArr);
-      setTotalPages(data.totalPages || Math.ceil((data.total || logsArr.length) / 10) || 1);
 
-      // compute stats from all logs (if backend returns them) or from current page
-      if (data.stats) {
-        setStats(data.stats);
-      } else {
-        const s = { INFO: 0, WARN: 0, ERROR: 0 };
-        logsArr.forEach(l => { if (s[l.level] !== undefined) s[l.level]++; });
-        setStats(s);
-      }
-    } catch(e) { console.error(e); }
+      const [logsData, statsData] = await Promise.all([
+        apiFetch(`/applications/${appName}/logs?${params}`),
+        apiFetch(`/applications/${appName}/logs/stats`),
+      ]);
+
+      setLogs(logsData.data || []);
+      setTotalPages(logsData.totalPages || 1);
+
+      const s = { INFO: 0, WARN: 0, ERROR: 0 };
+      (statsData.data?.levelDistribution || []).forEach(item => {
+        if (s[item.level] !== undefined) s[item.level] = item.count;
+      });
+      setStats(s);
+
+    } catch (e) { console.error(e); }
     setLoading(false);
   }, [appName, page, sort, level, search]);
+
 
   useEffect(() => { load(); }, [load]);
   useEffect(() => { setPage(1); }, [sort, level, search]);
@@ -409,7 +412,7 @@ function LogsPage({ appName, onBack }) {
       const angle = total > 0 ? (v / total) * 2 * Math.PI : 0;
       const end = start + angle;
       const x1 = cx + radius * Math.cos(start), y1 = cy + radius * Math.sin(start);
-      const x2 = cx + radius * Math.cos(end),   y2 = cy + radius * Math.sin(end);
+      const x2 = cx + radius * Math.cos(end), y2 = cy + radius * Math.sin(end);
       const large = angle > Math.PI ? 1 : 0;
       const d = angle > 0.01 ? `M${cx},${cy} L${x1},${y1} A${radius},${radius} 0 ${large} 1 ${x2},${y2} Z` : "";
       const mid = start + angle / 2;
@@ -583,15 +586,15 @@ export default function App() {
   const [booting, setBooting] = useState(true);
 
   useEffect(() => {
-  apiFetch("/developers/me")
-    .then(data => { setDeveloper(data.data); setBooting(false); })
-    .catch(() => setBooting(false));
-}, []);
+    apiFetch("/developers/me")
+      .then(data => { setDeveloper(data.data); setBooting(false); })
+      .catch(() => setBooting(false));
+  }, []);
 
   const logout = async () => {
-  try { await apiFetch("/developers/logout", { method: "POST" }); } catch {}
-  setDeveloper(null); setSelectedApp(null);
-};
+    try { await apiFetch("/developers/logout", { method: "POST" }); } catch { }
+    setDeveloper(null); setSelectedApp(null);
+  };
 
   if (booting) return (
     <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
