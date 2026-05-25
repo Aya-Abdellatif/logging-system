@@ -52,7 +52,12 @@ export const loginDeveloperController = async (request, response, next) => {
 // POST /api/developers/logout
 export const logoutDeveloperController = async (request, response, next) => {
     try {
-        response.cookie('jwt', '', { httpOnly: true, expires: new Date(0) });
+        response.cookie('jwt', '', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+            expires: new Date(0),
+        });
         response.status(200).json({ success: true, message: 'Logged out successfully' });
     }
     catch (error) {
@@ -79,8 +84,8 @@ const signToken = (id) => {
 const sendTokenAsCookie = (res, token) => {
     res.cookie('jwt', token, {
         httpOnly: true,
-        secure: false,
-        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
         maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 };

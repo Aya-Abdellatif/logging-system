@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 
-const API_BASE = "http://localhost:5000/api";
+const API_BASE = "/api";
 
 
 async function apiFetch(path, opts = {}) {
@@ -8,6 +8,7 @@ async function apiFetch(path, opts = {}) {
     method: opts.method || "GET",
     headers: {
       "Content-Type": "application/json",
+      ...opts.headers,
     },
     credentials: "include",
     body: opts.body || undefined,
@@ -356,7 +357,7 @@ function AppsPage({ onSelectApp }) {
 }
 
 // ─── LOGS PAGE ────────────────────────────────────────────────────────────────
-function LogsPage({ appName, onBack }) {
+function LogsPage({ appName, developer, onBack }) {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -366,6 +367,10 @@ function LogsPage({ appName, onBack }) {
   const [search, setSearch] = useState("");
   const [tab, setTab] = useState("table");
   const [stats, setStats] = useState({ INFO: 0, WARN: 0, ERROR: 0 });
+  const [newMessage, setNewMessage] = useState("");
+  const [newLevel, setNewLevel] = useState("INFO");
+  const [createLoading, setCreateLoading] = useState(false);
+  const [createError, setCreateError] = useState("");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -383,7 +388,6 @@ function LogsPage({ appName, onBack }) {
         apiFetch(`/applications/${appName}/logs?${params}`),
         apiFetch(`/applications/${appName}/logs/stats`),
       ]);
-
       setLogs(logsData.data || []);
       setTotalPages(logsData.totalPages || 1);
 
@@ -400,6 +404,31 @@ function LogsPage({ appName, onBack }) {
 
   useEffect(() => { load(); }, [load]);
   useEffect(() => { setPage(1); }, [sort, level, search]);
+
+  const createLog = async () => {
+    if (!newMessage.trim()) {
+      setCreateError("Please enter a log message.");
+      return;
+    }
+
+    setCreateError("");
+    setCreateLoading(true);
+    try {
+      await apiFetch(`/applications/${appName}/logs`, {
+        method: "POST",
+        body: JSON.stringify({ message: newMessage.trim(), level: newLevel }),
+        headers: {
+          "x-api-key": developer?.apiKey || "",
+        },
+      });
+      setNewMessage("");
+      setNewLevel("INFO");
+      await load();
+    } catch (e) {
+      setCreateError(e.message);
+    }
+    setCreateLoading(false);
+  };
 
   const total = stats.INFO + stats.WARN + stats.ERROR;
   const pct = (v) => total > 0 ? Math.round(v / total * 100) : 0;
@@ -444,6 +473,34 @@ function LogsPage({ appName, onBack }) {
         <div>
           <h2 style={{ fontWeight: 700, fontSize: 22, color: "#0f172a", margin: 0 }}>{appName}</h2>
           <p style={{ color: "#64748b", fontSize: 13, margin: "2px 0 0" }}>Application logs</p>
+        </div>
+      </div>
+
+      <div style={{ background: "#fff", border: "1.5px solid #e2e8f0", borderRadius: 14, padding: 20, marginBottom: 24 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+          <div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: "#0f172a", marginBottom: 6 }}>Send a log without SDK</div>
+            <div style={{ fontSize: 13, color: "#64748b" }}>Add a message and level, then send directly to this application.</div>
+          </div>
+          <select value={newLevel} onChange={e => setNewLevel(e.target.value)}
+            style={{ padding: "10px 14px", border: "1.5px solid #e2e8f0", borderRadius: 8, fontSize: 13, cursor: "pointer" }}>
+            <option value="INFO">INFO</option>
+            <option value="WARN">WARN</option>
+            <option value="ERROR">ERROR</option>
+          </select>
+        </div>
+
+        <textarea value={newMessage} onChange={e => setNewMessage(e.target.value)}
+          placeholder="Type your log message here..."
+          rows={3}
+          style={{ width: "100%", marginTop: 14, padding: "12px 14px", border: "1.5px solid #e2e8f0", borderRadius: 10, fontSize: 14, resize: "vertical" }} />
+
+        {createError && (
+          <div style={{ marginTop: 12, color: "#b91c1c", fontSize: 13 }}>{createError}</div>
+        )}
+
+        <div style={{ marginTop: 16, display: "flex", justifyContent: "flex-end" }}>
+          <Btn loading={createLoading} onClick={createLog} style={{ padding: "10px 18px", fontSize: 13 }}>Send Log</Btn>
         </div>
       </div>
 
@@ -609,7 +666,7 @@ export default function App() {
       <Sidebar developer={developer} onLogout={logout} selected={selectedApp ? "apps" : page} onSelect={(p) => { setPage(p); setSelectedApp(null); }} />
       <main style={{ flex: 1, padding: 36, overflowY: "auto" }}>
         {selectedApp ? (
-          <LogsPage appName={selectedApp} onBack={() => setSelectedApp(null)} />
+          <LogsPage appName={selectedApp} developer={developer} onBack={() => setSelectedApp(null)} />
         ) : page === "apps" ? (
           <AppsPage onSelectApp={name => setSelectedApp(name)} />
         ) : (
