@@ -7,7 +7,7 @@ export const getAllApplications = async (request, response, next) => {
 
         response.status(200).json({ success: true, data: applications });
     } catch (error) {
-        return next(err);
+        return next(error);
     }
 };
 

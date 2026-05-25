@@ -5,11 +5,17 @@ import logRouter from "./logs/logs.router.js";
 import mongoose from "mongoose";
 import express from "express";
 import cookieParser from 'cookie-parser';
+import cors from "cors";
 import dotenv from "dotenv";
 
 dotenv.config();
 
 const server = express();
+
+server.use(cors({
+  origin: "http://localhost:5173",
+  credentials: true,
+}));
 
 //server.use(express.urlencoded());
 server.use(express.json());
