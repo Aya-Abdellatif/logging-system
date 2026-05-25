@@ -51,7 +51,7 @@ async function log({ message, level = 'INFO' }) {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "x-api-key": _config.apiKey,
+                "x-api-key": _config.apiKey
             },
             body: JSON.stringify({
                 message,
