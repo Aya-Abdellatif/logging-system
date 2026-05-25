@@ -185,7 +185,7 @@ http://localhost:5000/api
 
 ---
 
-## 📡 API Overview
+## API Overview
 
 ### Authentication
 
