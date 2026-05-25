@@ -1,125 +1,183 @@
-# LogFlow 🪵
+# LogFlow
 
-> An all-in-one logging system for application developers to save, manage, and analyze logs.
+**LogFlow** is a centralized logging platform that helps developers collect, manage, and analyze application logs in real time through a web dashboard and a lightweight Node.js SDK.
 
-[![npm version](https://img.shields.io/npm/v/logflow-sdk-aya)](https://www.npmjs.com/package/logflow-sdk-aya)
+<img width="450" height="250" alt="demo" src="https://github.com/user-attachments/assets/4fe3ccc7-4c4c-4f4c-ab83-929e55171938" />
 
----
+It provides a complete logging system consisting of:
 
-## Table of Contents
-
-- [Overview](#overview)
-- [Tech Stack](#tech-stack)
-- [Project Structure](#project-structure)
-- [Getting Started](#getting-started)
-- [Environment Variables](#environment-variables)
-- [API Reference](#api-reference)
-  - [Auth Endpoints](#auth-endpoints)
-  - [Application Endpoints](#application-endpoints)
-  - [Log Endpoints](#log-endpoints)
-- [Authentication](#authentication)
-- [Data Models](#data-models)
-- [Roadmap](#roadmap)
+* Backend API (Express + MongoDB)
+* Developer Dashboard (React)
+* Official SDK (NPM package) for easy integration
 
 ---
 
-## Overview
+## Key Features
 
-LogFlow is a centralized logging platform built for application developers. Instead of dealing with scattered console outputs or third-party tools that don't fit your needs, LogFlow gives you:
+* Centralized log management for multiple applications
+* Real-time log collection via API
+* Developer authentication with JWT
+* Secure API key system for external applications
+* Filtering logs by level, search, pagination, and sorting
+* Duplicate log aggregation (log count incrementing)
+* Clean and responsive dashboard UI
+* Official Node.js SDK for easy integration
 
-- A clean API to push logs from any application.
-- A unique API key per developer to authenticate log submissions.
-- Full control over filtering, sorting, and paginating your logs.
-- Deduplication: repeated log messages increment a counter instead of flooding your database.
+---
+
+## LogFlow SDK (NPM Package)
+https://www.npmjs.com/package/logflow-sdk-aya
+
+The easiest way to send logs from your Node.js applications.
+
+### Installation
+
+```bash
+npm install logflow-sdk-aya<img width="400" height="225" alt="demo" src="https://github.com/user-attachments/assets/3fcbffd7-1612-4a2b-bf9f-f6f71ffa4e4e" />
+
+```
+
+### Usage
+
+```js
+import { LogFlow } from "logflow-sdk";
+
+const logger = new LogFlow({
+  apiKey: "your_api_key",
+  appName: "my-app",
+  baseUrl: "http://localhost:5000/api"
+});
+
+logger.info("Server started successfully");
+logger.warn("Memory usage is high");
+logger.error("Database connection failed");
+```
+
+### Features
+
+* Simple API for sending logs
+* Supports INFO / WARN / ERROR levels
+* Secure API key authentication
+* Designed for backend and server apps
+
+---
+
+## System Architecture
+
+```
+Client Application
+      ↓
+LogFlow SDK
+      ↓
+Express API Server
+      ↓
+MongoDB Database
+      ↓
+React Dashboard
+```
+
+---
+
+## What is LogFlow?
+
+LogFlow is built to solve the problem of scattered and unstructured logs in modern applications.
+
+Instead of relying on `console.log`, developers can:
+
+* Send logs from multiple services
+* Store them centrally
+* Monitor and filter them through a dashboard
+* Debug issues faster and more efficiently
+
+---
+
+## Authentication & API Keys
+
+LogFlow uses a hybrid authentication system:
+
+* **JWT Authentication** → for dashboard access
+* **API Key Authentication** → for external logging via SDK
+
+Each developer gets a unique API key used to securely send logs from applications.
 
 ---
 
 ## Tech Stack
 
-| Layer      | Technology          |
-|------------|---------------------|
-| Runtime    | Node.js             |
-| Framework  | Express.js          |
-| Database   | MongoDB + Mongoose  |
-| Auth       | JWT (JSON Web Tokens) + HTTP-only Cookies |
-| Validation | express-validator   |
+### Backend
+
+* Node.js
+* Express.js
+* MongoDB + Mongoose
+* JWT Authentication
+* REST APIs
+
+### Frontend
+
+* React (Vite)
+
+### SDK
+
+* Node.js package (logflow-sdk)
+* Fetch/HTTP requests
 
 ---
 
 ## Project Structure
 
 ```
-logflow-backend/
-├── src/
-│   ├── config/
-│   │   └── db.js               # MongoDB connection
-│   ├── controllers/
-│   │   ├── auth.controller.js
-│   │   ├── application.controller.js
-│   │   └── log.controller.js
-│   ├── middleware/
-│   │   ├── auth.middleware.js   # JWT route protection
-│   │   └── apiKey.middleware.js # API key validation for log posting
-│   ├── models/
-│   │   ├── Developer.model.js
-│   │   ├── Application.model.js
-│   │   └── Log.model.js
-│   ├── routes/
-│   │   ├── auth.routes.js
-│   │   ├── application.routes.js
-│   │   └── log.routes.js
-│   └── app.js
-├── .env.example
-├── package.json
-└── README.md
-```
-
----
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js v18+
-- MongoDB instance (local or Atlas)
-
-### Installation
-
-```bash
-# Clone the repository
-git clone https://github.com/your-username/logflow-backend.git
-cd logflow-backend
-
-# Install dependencies
-npm install
-
-# Set up environment variables
-cp .env.example .env
-# Fill in your values in .env
-
-# Start the development server
-npm run dev
+logging-system/
+├── backend/         # Express API + MongoDB models + auth + routes
+├── frontend/        # React dashboard
+└── logflow-sdk/     # NPM SDK package
 ```
 
 ---
 
 ## Environment Variables
 
-Create a `.env` file in the root directory based on `.env`:
+Create a `.env` file inside the backend:
 
 ```env
-PORT=5000
-MONGO_URI=mongodb://localhost:27017/logflow
-JWT_SECRET=your_super_secret_key
-JWT_EXPIRES_IN=7d
-NODE_ENV=development
+PORT_NUMBER=5000
+DATABASE_CONNECTION_STRING=mongodb://localhost:27017/logflow
+JWT_SECRET_KEY=your_secret_key
 ```
 
 ---
 
-## API Reference
+## Getting Started
 
-### Base URL
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/your-username/logflow.git
+cd logflow
+```
+
+### 2. Run Backend
+
+```bash
+cd backend
+npm install
+npm start
+```
+
+### 3. Run Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Frontend runs on:
+
+```
+http://localhost:5173
+```
+
+Backend runs on:
 
 ```
 http://localhost:5000/api
@@ -127,260 +185,86 @@ http://localhost:5000/api
 
 ---
 
-### Auth Endpoints
+## 📡 API Overview
 
-#### Register
-```http
-POST /users/register
-```
+### Authentication
 
-**Body:**
-```json
-{
-  "username": "john_doe",
-  "email": "john@example.com",
-  "password": "securepassword"
-}
-```
-
-**Response:**
-```json
-{
-  "message": "Developer registered successfully",
-  "apiKey": "generated-uuid-api-key"
-}
-```
+* `POST /developers/register`
+* `POST /developers/login`
+* `POST /developers/logout`
+* `GET /developers/me`
 
 ---
 
-#### Login
-```http
-POST /users/login
-```
+### Applications
 
-**Body:**
-```json
-{
-  "email": "john@example.com",
-  "password": "securepassword"
-}
-```
-
-**Response:** Sets an HTTP-only cookie with the JWT token.
+* `GET /applications`
+* `POST /applications`
+* `DELETE /applications/:name`
 
 ---
 
-#### Logout
-```http
-POST /users/logout
-```
+### Logs
 
-Clears the authentication cookie.
-
----
-
-### Application Endpoints
-
-> All application endpoints require a valid JWT (authenticated session).
-
-#### Get All Applications
-```http
-GET /applications
-```
-
-Returns all applications belonging to the logged-in developer.
+* `GET /applications/:name/logs`
+* `POST /applications/:name/logs`
+* `GET /applications/:name/logs/stats`
 
 ---
 
-#### Create an Application
-```http
-POST /applications
-```
+### Send Log (via API Key)
 
-**Body:**
-```json
-{
-  "name": "my-app"
-}
-```
-
-**Rules:**
-- Name must be unique across the entire database.
-- Whitespaces are not allowed.
-
----
-
-#### Delete an Application
-```http
-DELETE /applications/:name
-```
-
-Deletes the application and all its associated logs.
-
----
-
-### Log Endpoints
-
-#### Get All Logs of an Application
-```http
-GET /applications/:name/logs
-```
-
-> Requires JWT authentication.
-
-**Query Parameters:**
-
-| Param    | Type     | Description                                      | Example              |
-|----------|----------|--------------------------------------------------|----------------------|
-| `page`   | `number` | Page number (default: 1)                         | `?page=2`            |
-| `limit`  | `number` | Logs per page (default: 10)                      | `?limit=20`          |
-| `level`  | `string` | Filter by level: `INFO`, `WARN`, `ERROR`         | `?level=ERROR`       |
-| `search` | `string` | Search by message (case-insensitive)             | `?search=timeout`    |
-| `sort`   | `string` | Sort by `recent` (default) or `count`            | `?sort=count`        |
-
-**Example Request:**
-```
-GET /api/applications/my-app/logs?page=1&limit=10&level=ERROR&sort=recent
-```
-
----
-
-#### Post a Log to an Application
 ```http
 POST /applications/:name/logs
+x-api-key: your_api_key
 ```
-
-> Requires a valid **API Key** passed in the request header.
-
-**Headers:**
-```
-x-api-key: your-developer-api-key
-```
-
-**Body:**
-```json
-{
-  "message": "Database connection failed",
-  "level": "ERROR"
-}
-```
-
-**Behavior:**
-- If a log with the same `message` and `level` already exists in the application, its `count` is incremented and `updatedAt` is refreshed.
-- Otherwise, a new log entry is created with `count: 1`.
-
-**Validation:**
-- The API key must belong to a developer who owns the target application.
 
 ---
 
-## Authentication
+## Log Query Features
 
-LogFlow uses two layers of authentication:
-
-| Layer        | Used For                          | How                              |
-|--------------|-----------------------------------|----------------------------------|
-| JWT Cookie   | Dashboard / developer routes      | HTTP-only cookie set on login    |
-| API Key      | Posting logs from external apps   | `x-api-key` header               |
+* Pagination (`page`, `limit`)
+* Filter by level (`INFO`, `WARN`, `ERROR`)
+* Search by message
+* Sorting (`recent`, `count`)
 
 ---
 
 ## Data Models
 
 ### Developer
-| Field      | Type     | Notes                        |
-|------------|----------|------------------------------|
-| `username` | String   | Required, unique             |
-| `email`    | String   | Required, unique             |
-| `password` | String   | Hashed with bcrypt           |
-| `apiKey`   | String   | Auto-generated UUID on register |
+
+* username
+* email
+* password (hashed)
+* apiKey
 
 ### Application
-| Field       | Type     | Notes                                       |
-|-------------|----------|---------------------------------------------|
-| `name`      | String   | Required, unique globally, no whitespace    |
-| `developer` | ObjectId | Ref to Developer                            |
-| `createdAt` | Date     | Auto                                        |
-| `updatedAt` | Date     | Auto                                        |
+
+* name
+* developer reference
+* timestamps
 
 ### Log
-| Field       | Type     | Notes                                            |
-|-------------|----------|--------------------------------------------------|
-| `message`   | String   | Required                                         |
-| `level`     | String   | Enum: `INFO`, `WARN`, `ERROR`                    |
-| `count`     | Number   | Default: 1, increments on duplicate              |
-| `application` | ObjectId | Ref to Application                             |
-| `createdAt` | Date     | First occurrence                                 |
-| `updatedAt` | Date     | Last occurrence                                  |
+
+* message
+* level
+* count
+* application reference
+* timestamps
 
 ---
 
-## SDK — `logflow-sdk-aya`
+## Future Improvements
 
-The official Node.js SDK to send logs from your application to LogFlow.
-
-📦 **npm:** [https://www.npmjs.com/package/logflow-sdk-aya](https://www.npmjs.com/package/logflow-sdk-aya)
-
-### Installation
-
-```bash
-npm install logflow-sdk-aya
-```
-
-### Usage
-
-```js
-const logflow = require("logflow-sdk-aya");
-
-// Initialize with your API key and application name
-logflow.init({
-  apiKey: "your-api-key",
-  appName: "my-app",
-});
-
-// Send a log
-logflow.log({
-  message: "User signed in",
-  level: "INFO",
-});
-
-logflow.log({
-  message: "Payment service timeout",
-  level: "WARN",
-});
-
-logflow.log({
-  message: "Database connection failed",
-  level: "ERROR",
-});
-```
-
-### Methods
-
-| Method  | Description                                              |
-|---------|----------------------------------------------------------|
-| `init`  | Sets your API key and target application name            |
-| `log`   | Sends a log entry (`message` + `level`) to your app     |
-
-> **Note:** `level` must be one of `INFO`, `WARN`, or `ERROR`.
+* Real-time WebSocket log streaming
+* Docker support
+* Rate limiting for API keys
+* Multi-environment support (dev/staging/prod)
+* Hosted SaaS version
 
 ---
 
-## Roadmap
+## Author
 
-- [x] Developer auth (register, login, logout)
-- [x] API key generation
-- [x] Application CRUD
-- [x] Log ingestion with deduplication
-- [x] Filtering, sorting, and pagination
-- [x] Route protection (JWT + API key)
-- [ ] Frontend dashboard (React)
-- [x] npm SDK package ([logflow-sdk-aya](https://www.npmjs.com/package/logflow-sdk-aya))
-- [ ] Charts: pie chart for log levels, line graph per day
-- [ ] Deployment
-
----
-
-## License
-
-MIT
+Built by **Aya Abdellatif**
