@@ -1,3 +1,7 @@
+'use strict';
+ 
+import axios from "axios";
+
 let _config = {
     apiKey: null,
     appName: null,
@@ -45,27 +49,32 @@ async function log({ message, level = 'INFO' }) {
         );
     }
 
-    const response = await fetch(
-        `${_config.baseUrl}/api/applications/${_config.appName}/logs`,
-        {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "x-api-key": _config.apiKey
-            },
-            body: JSON.stringify({
-                message,
-                level: normalizedLevel,
-            }),
-        }
+    try {
+    const response = await axios.post(
+      `${_config.baseUrl}/api/applications/${_config.appName}/logs`,
+      {
+        message: message.trim(),
+        level: normalizedLevel,
+      },
+      {
+        headers: {
+          'x-api-key': _config.apiKey,
+          'Content-Type': 'application/json',
+        },
+      }
     );
-
-    if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData?.message || "API Error");
+ 
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      const { status, data } = error.response;
+      throw new Error(
+        `[LogFlow] API error (${status}): ${data?.message || JSON.stringify(data)}`
+      );
     }
-
-    return await response.json();
+ 
+    throw new Error(`[LogFlow] Network error: ${error.message}`);
+  }
 }
 
 export default {

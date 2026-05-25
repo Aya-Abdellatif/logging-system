@@ -1,2 +1,3 @@
 backend/node_modules
 backend/.env
+logflow/node_modules
