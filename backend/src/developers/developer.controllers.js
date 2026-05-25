@@ -65,7 +65,7 @@ export const getMe = async (req, res, next) => {
 
 
 const signToken = (id) => {
-    return jwt.sign({ id }, process.env.JWT_SECRET, {
+    return jwt.sign({ id }, process.env.JWT_SECRET_KEY, {
         expiresIn: '7d',
     });
 };

@@ -32,12 +32,11 @@ const developerSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-developerSchema.pre('save', async function (next) {
+developerSchema.pre('save', async function () {
   if (!this.isModified('password')) 
-    return next();
+    return;
 
   this.password = await bcrypt.hash(this.password, 12);
-  next();
 });
 
 developerSchema.methods.comparePassword = async function (candidatePassword) {

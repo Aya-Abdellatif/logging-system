@@ -1,4 +1,5 @@
 export const errorHandler = (error, request, response, next) => {
+    
     console.error(error);
 
     // mongoose Errors
