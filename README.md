@@ -33,7 +33,7 @@ The easiest way to send logs from your Node.js applications.
 ### Installation
 
 ```bash
-npm install logflow-sdk-aya<img width="400" height="225" alt="demo" src="https://github.com/user-attachments/assets/3fcbffd7-1612-4a2b-bf9f-f6f71ffa4e4e" />
+npm install logflow-sdk-aya
 
 ```
 
