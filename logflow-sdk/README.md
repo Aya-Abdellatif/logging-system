@@ -45,6 +45,7 @@ Initializes the SDK. **Must be called once** before any `log()` calls.
 | `baseUrl`         | `string` | ❌       | LogFlow server URL (default: `http://localhost:5000`). |
 | `batchSize`       | `number` | ❌       | Max queued logs before sending immediately (default: `20`). |
 | `flushIntervalMs` | `number` | ❌       | Max time queued logs wait before being sent (default: `2000`). |
+| `maxRetries`      | `number` | ❌       | Retries for a failed send before giving up, with exponential backoff (default: `3`, delays: 1s, 2s, 4s). Only network errors and 5xx server errors are retried - a bad API key or malformed data fails immediately since retrying won't change the outcome. |
 
 ---
 
