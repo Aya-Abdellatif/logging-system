@@ -9,15 +9,14 @@ logflow.init({
 });
 
 // ─── 2. Send logs anywhere in your app ───────────────────────────────────────
-async function main() {
-  try {
-    // Using the generic log() method
-    await logflow.log({ message: 'Application started', level: 'INFO' });
-    console.log('INFO log sent');
+// log() queues the entry and returns immediately - it doesn't wait on the
+// network. Queued logs are sent together in a batch, either once enough
+// pile up (batchSize) or after a short delay (flushIntervalMs).
+logflow.log({ message: 'Application started', level: 'INFO' });
+logflow.log({ message: 'Cache warmed', level: 'INFO' });
+logflow.log({ message: 'Rate limit hit', level: 'WARN' });
 
-  } catch (err) {
-    console.error(err.message);
-  }
-}
-
-main();
+// Short-lived scripts should flush explicitly before exiting, so queued
+// logs aren't lost.
+await logflow.flush();
+console.log('Logs flushed');

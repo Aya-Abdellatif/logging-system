@@ -4,12 +4,16 @@ let _config = {
     apiKey: null,
     appName: null,
     baseUrl: null,
+    batchSize: 20,
+    flushIntervalMs: 2000,
 };
 
 const VALID_LEVELS = ['INFO', 'WARN', 'ERROR'];
 
+let _queue = [];
+let _flushTimer = null;
 
-function init({ apiKey, appName, baseUrl = "http://localhost:5000" }) {
+function init({ apiKey, appName, baseUrl = "http://localhost:5000", batchSize = 20, flushIntervalMs = 2000 }) {
     if (!apiKey || typeof apiKey !== 'string' || apiKey.trim() === '') {
         throw new Error('[LogFlow] init() requires a non-empty "apiKey" string.');
     }
@@ -25,13 +29,13 @@ function init({ apiKey, appName, baseUrl = "http://localhost:5000" }) {
     _config = {
         apiKey: apiKey.trim(),
         appName: appName.trim(),
-        baseUrl: baseUrl.replace(/\/$/, '')
-    }
+        baseUrl: baseUrl.replace(/\/$/, ''),
+        batchSize,
+        flushIntervalMs,
+    };
 }
 
-async function log({ message, level = 'INFO' }) {
-
-
+function log({ message, level = 'INFO' }) {
     if (!_config.apiKey || !_config.appName) {
         throw new Error(
             '[LogFlow] SDK not initialized. Call logflow.init({ apiKey, appName }) first.'
@@ -49,13 +53,34 @@ async function log({ message, level = 'INFO' }) {
         );
     }
 
+    _queue.push({ message: message.trim(), level: normalizedLevel });
+
+    if (_queue.length >= _config.batchSize) {
+        flush();
+    } else if (!_flushTimer) {
+        _flushTimer = setTimeout(flush, _config.flushIntervalMs);
+    }
+}
+
+// Sends whatever is currently queued right now, without waiting for the
+// batch size or flush interval to be reached. Fire-and-forget log() calls
+// don't wait on this, but short-lived scripts should await it before
+// exiting so queued logs aren't lost.
+async function flush() {
+    if (_flushTimer) {
+        clearTimeout(_flushTimer);
+        _flushTimer = null;
+    }
+
+    if (_queue.length === 0) return;
+
+    const batch = _queue;
+    _queue = [];
+
     try {
-        const response = await axios.post(
-            `${_config.baseUrl}/api/applications/${_config.appName}/logs`,
-            {
-                message: message.trim(),
-                level: normalizedLevel,
-            },
+        await axios.post(
+            `${_config.baseUrl}/api/applications/${_config.appName}/logs/batch`,
+            { logs: batch },
             {
                 headers: {
                     'x-api-key': _config.apiKey,
@@ -63,21 +88,21 @@ async function log({ message, level = 'INFO' }) {
                 },
             }
         );
-
-        return response.data;
     } catch (error) {
-        if (error.response) {
-            const { status, data } = error.response;
-            throw new Error(
-                `[LogFlow] API error (${status}): ${data?.message || JSON.stringify(data)}`
-            );
-        }
-
-        throw new Error(`[LogFlow] Network error: ${error.message}`);
+        const reason = error.response
+            ? `API error (${error.response.status}): ${error.response.data?.message || JSON.stringify(error.response.data)}`
+            : `Network error: ${error.message}`;
+        console.error(`[LogFlow] Failed to send ${batch.length} log(s): ${reason}`);
     }
 }
+
+// Best-effort: catches the common case of a process exiting naturally
+// with logs still queued. Doesn't fire on process.exit() or signals -
+// call flush() explicitly before those in short-lived scripts.
+process.once('beforeExit', () => { flush(); });
 
 export default {
     init,
     log,
+    flush,
 };

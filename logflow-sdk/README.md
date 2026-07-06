@@ -27,7 +27,7 @@ logflow.init({
 });
 
 // 2. Send logs anywhere in your app
-await logflow.log({ message: 'Server started', level: 'INFO' });
+logflow.log({ message: 'Server started', level: 'INFO' });
 ```
 
 ---
@@ -38,24 +38,40 @@ await logflow.log({ message: 'Server started', level: 'INFO' });
 
 Initializes the SDK. **Must be called once** before any `log()` calls.
 
-| Option    | Type     | Required | Description                              |
-|-----------|----------|----------|------------------------------------------|
-| `apiKey`  | `string` | ✅       | Your developer API key from LogFlow.     |
-| `appName` | `string` | ✅       | Your application's unique name.          |
-| `baseUrl` | `string` | ❌       | LogFlow server URL (default: `http://localhost:5000`). |
+| Option            | Type     | Required | Description                              |
+|-------------------|----------|----------|-------------------------------------------|
+| `apiKey`          | `string` | ✅       | Your developer API key from LogFlow.     |
+| `appName`         | `string` | ✅       | Your application's unique name.          |
+| `baseUrl`         | `string` | ❌       | LogFlow server URL (default: `http://localhost:5000`). |
+| `batchSize`       | `number` | ❌       | Max queued logs before sending immediately (default: `20`). |
+| `flushIntervalMs` | `number` | ❌       | Max time queued logs wait before being sent (default: `2000`). |
 
 ---
 
 ### `logflow.log({ message, level })`
 
-Sends a log entry to your application.
+Queues a log entry to be sent to your application. Returns immediately -
+it does not wait on the network. Queued logs are sent together in a single
+HTTP request, either once `batchSize` is reached or after `flushIntervalMs`
+elapses, whichever comes first.
 
 | Option    | Type     | Required | Default  | Description                        |
 |-----------|----------|----------|----------|------------------------------------|
 | `message` | `string` | ✅       | —        | The log message to record.         |
 | `level`   | `string` | ❌       | `"INFO"` | One of: `INFO`, `WARN`, `ERROR`.   |
 
-Returns a `Promise` that resolves with the saved log object.
+---
+
+### `logflow.flush()`
+
+Sends whatever is currently queued right away, without waiting for
+`batchSize` or `flushIntervalMs`. Returns a `Promise` that resolves once
+the request completes.
+
+The SDK also does a best-effort flush when your process exits naturally.
+That doesn't cover `process.exit()` or signals like `SIGINT`/`SIGTERM`, so
+short-lived scripts (e.g. CLI tools) should `await logflow.flush()`
+explicitly before exiting.
 
 ---
 

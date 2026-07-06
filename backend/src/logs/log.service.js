@@ -40,6 +40,16 @@ export const upsertLog = (applicationId, message, level) => {
     );
 };
 
+export const upsertLogsBatch = async (applicationId, entries) => {
+    const results = [];
+
+    for (const { message, level } of entries) {
+        results.push(await upsertLog(applicationId, message, level));
+    }
+
+    return results;
+};
+
 export const getLogStats = async (applicationId) => {
     const levelDistribution = await Log.aggregate([
         { $match: { application: applicationId } },
