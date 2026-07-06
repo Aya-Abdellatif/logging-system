@@ -99,7 +99,7 @@ function AuthPage({ onLogin }) {
         ? { email: form.email, password: form.password }
         : form;
       const data = await apiFetch(endpoint, { method: "POST", body: JSON.stringify(body) });
-      onLogin(data.data);
+      onLogin(data.data, data.apiKey);
     } catch (e) { setError(e.message); }
     setLoading(false);
   };
@@ -210,14 +210,27 @@ function Sidebar({ developer, onLogout, selected, onSelect }) {
 }
 
 // ─── API KEY PAGE ─────────────────────────────────────────────────────────────
-function ApiKeyPage({ developer }) {
+function ApiKeyPage({ developer, revealedApiKey, onRegenerate }) {
   const [copied, setCopied] = useState(false);
-  const key = developer?.apiKey || "••••••••-••••-••••-••••-••••••••••••";
+  const [regenerating, setRegenerating] = useState(false);
+  const [error, setError] = useState("");
+
+  const maskedKey = developer?.apiKeyPrefix ? `${developer.apiKeyPrefix}.${"•".repeat(24)}` : "••••••••";
+  const displayKey = revealedApiKey || maskedKey;
 
   const copy = () => {
-    navigator.clipboard.writeText(key);
+    navigator.clipboard.writeText(displayKey);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const regenerate = async () => {
+    if (!confirm("Regenerating will immediately invalidate your current API key. Continue?")) return;
+    setError(""); setRegenerating(true);
+    try {
+      await onRegenerate();
+    } catch (e) { setError(e.message); }
+    setRegenerating(false);
   };
 
   return (
@@ -226,17 +239,34 @@ function ApiKeyPage({ developer }) {
       <p style={{ color: "#64748b", fontSize: 14, marginBottom: 28 }}>
         Use this key to authenticate your SDK when sending logs.
       </p>
+
+      {revealedApiKey && (
+        <div style={{
+          background: "#fffbeb", border: "1px solid #fde68a", color: "#92400e",
+          borderRadius: 10, padding: "12px 16px", fontSize: 13, marginBottom: 16,
+        }}>
+          Copy this key now — for your security we only show the full key once and can't display it again.
+        </div>
+      )}
+
       <div style={{
         background: "#f8fafc", border: "1.5px solid #e2e8f0", borderRadius: 12,
         padding: 20, display: "flex", alignItems: "center", gap: 12,
       }}>
         <code style={{ flex: 1, fontSize: 13, color: "#0f172a", wordBreak: "break-all", fontFamily: "monospace" }}>
-          {key}
+          {displayKey}
         </code>
         <Btn variant="ghost" onClick={copy} style={{ flexShrink: 0 }}>
           {copied ? "✓ Copied" : "Copy"}
         </Btn>
       </div>
+
+      {error && <div style={{ marginTop: 12, color: "#b91c1c", fontSize: 13 }}>{error}</div>}
+
+      <div style={{ marginTop: 16 }}>
+        <Btn variant="outline" loading={regenerating} onClick={regenerate}>Regenerate Key</Btn>
+      </div>
+
       <div style={{
         marginTop: 24, background: "#eff6ff", border: "1px solid #bfdbfe",
         borderRadius: 10, padding: 16,
@@ -245,7 +275,7 @@ function ApiKeyPage({ developer }) {
         <pre style={{ margin: 0, fontSize: 12, color: "#1e3a8a", lineHeight: 1.7 }}>{`const logger = require('logflow-sdk');
 
 logger.init({
-  apiKey: '${key}',
+  apiKey: '${displayKey}',
   app: 'your-app-name',
   baseUrl: 'http://localhost:5000',
 });
@@ -357,7 +387,7 @@ function AppsPage({ onSelectApp }) {
 }
 
 // ─── LOGS PAGE ────────────────────────────────────────────────────────────────
-function LogsPage({ appName, developer, onBack }) {
+function LogsPage({ appName, onBack }) {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -417,9 +447,6 @@ function LogsPage({ appName, developer, onBack }) {
       await apiFetch(`/applications/${appName}/logs`, {
         method: "POST",
         body: JSON.stringify({ message: newMessage.trim(), level: newLevel }),
-        headers: {
-          "x-api-key": developer?.apiKey || "",
-        },
       });
       setNewMessage("");
       setNewLevel("INFO");
@@ -638,6 +665,7 @@ function LogsPage({ appName, developer, onBack }) {
 // ─── MAIN APP ─────────────────────────────────────────────────────────────────
 export default function App() {
   const [developer, setDeveloper] = useState(null);
+  const [revealedApiKey, setRevealedApiKey] = useState(null);
   const [page, setPage] = useState("apps");
   const [selectedApp, setSelectedApp] = useState(null);
   const [booting, setBooting] = useState(true);
@@ -648,9 +676,20 @@ export default function App() {
       .catch(() => setBooting(false));
   }, []);
 
+  const handleLogin = (dev, apiKey) => {
+    setDeveloper(dev);
+    if (apiKey) setRevealedApiKey(apiKey);
+  };
+
+  const regenerateApiKey = async () => {
+    const data = await apiFetch("/developers/regenerate-key", { method: "POST" });
+    setDeveloper(data.data);
+    setRevealedApiKey(data.apiKey);
+  };
+
   const logout = async () => {
     try { await apiFetch("/developers/logout", { method: "POST" }); } catch { }
-    setDeveloper(null); setSelectedApp(null);
+    setDeveloper(null); setSelectedApp(null); setRevealedApiKey(null);
   };
 
   if (booting) return (
@@ -659,18 +698,18 @@ export default function App() {
     </div>
   );
 
-  if (!developer) return <AuthPage onLogin={setDeveloper} />;
+  if (!developer) return <AuthPage onLogin={handleLogin} />;
 
   return (
     <div style={{ display: "flex", minHeight: "100vh", background: "#f8fafc", fontFamily: "system-ui,sans-serif" }}>
       <Sidebar developer={developer} onLogout={logout} selected={selectedApp ? "apps" : page} onSelect={(p) => { setPage(p); setSelectedApp(null); }} />
       <main style={{ flex: 1, padding: 36, overflowY: "auto" }}>
         {selectedApp ? (
-          <LogsPage appName={selectedApp} developer={developer} onBack={() => setSelectedApp(null)} />
+          <LogsPage appName={selectedApp} onBack={() => setSelectedApp(null)} />
         ) : page === "apps" ? (
           <AppsPage onSelectApp={name => setSelectedApp(name)} />
         ) : (
-          <ApiKeyPage developer={developer} />
+          <ApiKeyPage developer={developer} revealedApiKey={revealedApiKey} onRegenerate={regenerateApiKey} />
         )}
       </main>
     </div>

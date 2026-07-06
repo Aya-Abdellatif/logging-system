@@ -6,7 +6,7 @@ export const findApplicationForDeveloper = (name, developerId) => {
 };
 
 export const findApplicationWithDeveloper = (name) => {
-    return Application.findOne({ name }).populate('developer');
+    return Application.findOne({ name }).populate({ path: 'developer', select: '+apiKeyHash' });
 };
 
 export const queryLogs = async (applicationId, { page = 1, limit = 10, sortBy = 'createdAt', order = 'desc', level, search }) => {

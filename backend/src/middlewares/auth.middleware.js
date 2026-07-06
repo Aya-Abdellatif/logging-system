@@ -41,3 +41,35 @@ export const validateAuthToken = async (request, response, next) => {
         return response.status(401).json({ success: false, message: 'Invalid or expired token' });
     }
 };
+
+// Optional authentication middleware
+// Used for routes that support both JWT authentication and API key authentication
+export const attachDeveloperIfPresent = async (request, response, next) => {
+    try {
+        let token;
+
+        if (request.cookies?.jwt) {
+            token = request.cookies.jwt;
+        } else if (request.headers.authorization) {
+            const [scheme, value] = request.headers.authorization.split(' ');
+            if (scheme === 'Bearer' && value) {
+                token = value;
+            }
+        }
+
+        if (!token) {
+            return next();
+        }
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+        const developer = await Developer.findById(decoded.id);
+
+        if (developer) {
+            request.developer = developer;
+        }
+
+        return next();
+    } catch (err) {
+        return next();
+    }
+};

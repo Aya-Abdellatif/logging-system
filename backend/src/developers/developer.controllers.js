@@ -6,8 +6,9 @@ export const registerDeveloperController = async (request, response, next) => {
     try {
         const { username, email, password } = request.body;
 
-        const developer = await developerService.createDeveloper({ username, email, password });
+        const { developer, apiKey } = await developerService.createDeveloper({ username, email, password });
         developer.password = undefined;
+        developer.apiKeyHash = undefined;
         const token = signToken(developer._id);
 
         sendTokenAsCookie(response, token);
@@ -16,7 +17,8 @@ export const registerDeveloperController = async (request, response, next) => {
             success: true,
             message: "Developer registered successfully",
             token,
-            data: developer
+            data: developer,
+            apiKey,
         });
     }
     catch (error) {
@@ -65,5 +67,15 @@ export const getMe = async (request, response, next) => {
         response.status(200).json({ success: true, data: request.developer });
     } catch (err) {
         return next(err);
+    }
+};
+
+// POST /api/developers/regenerate-key
+export const regenerateApiKeyController = async (request, response, next) => {
+    try {
+        const { developer, apiKey } = await developerService.regenerateApiKey(request.developer._id);
+        response.status(200).json({ success: true, data: developer, apiKey });
+    } catch (error) {
+        return next(error);
     }
 };

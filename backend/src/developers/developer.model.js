@@ -1,6 +1,5 @@
 import mongoose from 'mongoose';
 import bcrypt from "bcrypt";
-import { v4 as uuidv4 } from 'uuid';
 
 const developerSchema = new mongoose.Schema(
   {
@@ -23,10 +22,13 @@ const developerSchema = new mongoose.Schema(
       minlength: [8, 'Password must be at least 8 characters'],
       select: false,
     },
-    apiKey: {
+    apiKeyPrefix: {
       type: String,
       unique: true,
-      default: () => uuidv4(),
+    },
+    apiKeyHash: {
+      type: String,
+      select: false,
     },
   },
   { timestamps: true }
