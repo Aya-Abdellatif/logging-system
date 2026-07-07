@@ -13,7 +13,7 @@ dotenv.config();
 const server = express();
 
 server.use(cors({
-  origin: "http://localhost:5173",
+  origin: process.env.FRONTEND_URL || "http://localhost:5173",
   credentials: true,
 }));
 
@@ -33,7 +33,7 @@ try {
     await mongoose.connect(process.env.DATABASE_CONNECTION_STRING);
     console.log("Connected to database.");
 
-    server.listen(process.env.PORT_NUMBER || 5000);
+    server.listen(process.env.PORT || process.env.PORT_NUMBER || 5000);
 }
 catch (error) {
     console.error(error);
