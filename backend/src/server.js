@@ -1,13 +1,3 @@
-process.on("uncaughtException", (err) => {
-  console.error("UNCAUGHT EXCEPTION");
-  console.error(err);
-});
-
-process.on("unhandledRejection", (err) => {
-  console.error("UNHANDLED REJECTION");
-  console.error(err);
-});
-
 import {errorHandler} from "./middlewares/errorHandler.middleware.js";
 import developerRouter from "./developers/developer.router.js";
 import applicationRouter from "./applications/application.router.js";
@@ -22,28 +12,15 @@ dotenv.config();
 
 const server = express();
 
-server.use((req, res, next) => {
-  console.log("Incoming:", req.method, req.originalUrl);
-  next();
-});
-
 server.use(cors({
   origin: process.env.FRONTEND_URL || "http://localhost:5173",
   credentials: true,
 }));
 
-server.use((req, res, next) => {
-  console.log("After CORS");
-  next();
-});
-
 //server.use(express.urlencoded());
 server.use(express.json());
 server.use(cookieParser());
 
-server.get("/ping", (req, res) => {
-  res.status(200).json({ message: "pong" });
-});
 
 server.use("/api/developers", developerRouter);
 server.use("/api/applications", applicationRouter);
