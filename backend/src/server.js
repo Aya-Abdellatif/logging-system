@@ -1,3 +1,13 @@
+process.on("uncaughtException", (err) => {
+  console.error("UNCAUGHT EXCEPTION");
+  console.error(err);
+});
+
+process.on("unhandledRejection", (err) => {
+  console.error("UNHANDLED REJECTION");
+  console.error(err);
+});
+
 import {errorHandler} from "./middlewares/errorHandler.middleware.js";
 import developerRouter from "./developers/developer.router.js";
 import applicationRouter from "./applications/application.router.js";
@@ -31,6 +41,9 @@ server.use((req, res, next) => {
 server.use(express.json());
 server.use(cookieParser());
 
+server.get("/ping", (req, res) => {
+  res.status(200).json({ message: "pong" });
+});
 
 server.use("/api/developers", developerRouter);
 server.use("/api/applications", applicationRouter);
